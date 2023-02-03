@@ -6,10 +6,6 @@ class chainsawman(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    
-    # async def on_message(self, message):
-    #     if 'chainsaw man' in message.content.lower():
-    #         await message.channel.send('chainsaw man sucks')
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -18,6 +14,7 @@ class chainsawman(commands.Cog):
                 'garbage',
                 'trash',
                 "lets not fight :(",
+                'shit',
                 '>:(',
                 '😠',
                 '😡',

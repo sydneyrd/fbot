@@ -20,7 +20,7 @@ class horoscope(commands.Cog):
         description = res['description']
         date_range = res['date_range']
 
-        embed_var = discord.Embed(title=f"hi {member.nick}", description=f"{date_range}", color=discord.Color.random())
+        embed_var = discord.Embed(title=f"hi {member.display_name}", description=f"{date_range}", color=discord.Color.random())
         embed_var.add_field(name='how u do', value=f'{mood}', inline=True)
         embed_var.add_field(name="what's up today", value=f'{description}')
         embed_var.set_footer(text='bless')
