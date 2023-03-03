@@ -2,6 +2,9 @@ import discord
 import os
 from discord.ext import commands
 import asyncio
+import openai
+TOKEN = os.environ.get("DISCORD_API_KEY")
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 
 intents = discord.Intents.all()
@@ -18,7 +21,7 @@ async def load():
 
 async def main():
     await load()
-    await bot.start("")
+    await bot.start(TOKEN)
 
 
 asyncio.run(main())

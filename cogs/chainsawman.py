@@ -18,7 +18,9 @@ class chainsawman(commands.Cog):
                 '>:(',
                 '😠',
                 '😡',
-                '😤'
+                '😤',
+                "(*Φ皿Φ*)",
+                "(•ˋ _ ˊ•)"
                 
             ]
             response = random.choice(response_options)
