@@ -3,7 +3,7 @@ import os
 from discord.ext import commands
 import asyncio
 
-
+TOKEN = os.environ.get("DISCORD_KEY")
 intents = discord.Intents.all()
 # intents.member = True
 
@@ -18,7 +18,7 @@ async def load():
 
 async def main():
     await load()
-    await bot.start("")
+    await bot.start(TOKEN)
 
 
 asyncio.run(main())
