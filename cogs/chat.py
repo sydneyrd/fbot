@@ -36,5 +36,5 @@ class freaq(commands.Cog):
             await ctx.send("history cleared, talk soon love you")
 
 async def setup(bot):
-    await bot.add_cog(freaq(bot))
+    bot.add_cog(freaq(bot))
 

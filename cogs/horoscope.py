@@ -1,4 +1,4 @@
-import discord
+import nextcord as discord
 from discord.ext import commands
 import requests
 
@@ -27,4 +27,4 @@ class horoscope(commands.Cog):
         await ctx.send(embed=embed_var)
 
 async def setup(bot):
-    await bot.add_cog(horoscope(bot))
+    bot.add_cog(horoscope(bot))

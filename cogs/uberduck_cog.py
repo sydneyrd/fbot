@@ -2,18 +2,20 @@ from datetime import datetime, timedelta
 import tempfile
 import subprocess
 from io import BytesIO
+import os
 import asyncio
+from functools import partial
 import aiohttp
 import nextcord as discord
 from discord.ext import commands
-from ..http import query_uberduck
+from my_http import query_uberduck, get_available_voices
 
-API_KEY = "replace-me"
-API_SECRET = "replace-me"
+API_KEY = os.getenv("API_KEY")
+API_SECRET = os.getenv("API_SECRET")
 API_ROOT = "https://api.uberduck.ai"
 
 
-class UberduckCog(commands.Cog):
+class uberduck_cog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.guild_to_voice_client = dict()
@@ -32,36 +34,18 @@ class UberduckCog(commands.Cog):
     def _context_to_voice_channel(self, ctx):
         return ctx.author.voice.channel if ctx.author.voice else None
 
-    async def _get_or_create_voice_client(self, ctx: commands.Context):
-        joined = False
-        if ctx.guild.id in self.guild_to_voice_client:
-            voice_client, _ = self.guild_to_voice_client[ctx.guild.id]
-        else:
-            voice_channel = self._context_to_voice_channel(ctx)
-            if voice_channel is None:
-                voice_client = None
-            else:
-                voice_client = await voice_channel.connect()
-                joined = True
-        return (voice_client, joined)
+    # async def _get_or_create_voice_client(self, ctx):
+    #     voice_client = ctx.guild.voice_client
+    #     if voice_client:
+    #         return voice_client, False
 
-    @commands.command()
-    async def join_vc(self, ctx):
-        voice_client, joined = await self._get_or_create_voice_client(ctx)
-        if voice_client is None:
-            await ctx.send("You're not in a voice channel. Join a voice channel to invite the bot!")
-        elif ctx.author.voice and voice_client.channel.id != ctx.author.voice.channel.id:
-            old_channel_name = voice_client.channel.name
-            await voice_client.disconnect()
-            voice_client = await ctx.author.voice.channel.connect()
-            new_channel_name = voice_client.channel.name
-            self.guild_to_voice_client[ctx.guild.id] = (
-                voice_client, datetime.utcnow())
-            await ctx.send(f"Switched from #{old_channel_name} to #{new_channel_name}!")
-        else:
-            await ctx.send("Connected to voice channel!")
-            self.guild_to_voice_client[ctx.guild.id] = (
-                voice_client, datetime.utcnow())
+    #     if ctx.author.voice:
+    #         voice_channel = ctx.author.voice.channel
+    #         voice_client = await voice_channel.connect()
+    #         return voice_client, True
+    #     else:
+    #         raise commands.CommandError("You need to be in a voice channel to use this command.")
+
 
     @commands.command()
     async def kick_vc(self, ctx):
@@ -84,16 +68,40 @@ class UberduckCog(commands.Cog):
                 wav_f.write(audio_data.getvalue())
                 wav_f.flush()
                 subprocess.check_call(["ffmpeg", "-y", "-i", wav_f.name, opus_f.name])
-                source = nextcord.FFmpegOpusAudio(opus_f.name)
+                source = discord.FFmpegOpusAudio(opus_f.name)
                 voice_client.play(source, after=None)
+
+                # Wait for the VoiceClient to connect before playing audio
+                while not voice_client.is_connected():
+                    await asyncio.sleep(0.1)
+
                 while voice_client.is_playing():
                     await asyncio.sleep(0.5)
                 await ctx.send("Sent an Uberduck message in voice chat.")
         else:
             await ctx.send("You're not in a voice channel. Join a voice channel to invite the bot!")
+    async def _get_or_create_voice_client(self, ctx):
+        voice_client = ctx.guild.voice_client
+        if voice_client:
+            # Check if voice client is fully connected
+            if voice_client.is_connected() and not voice_client.is_connecting():
+                return voice_client, False
+            else:
+                # Wait for voice client to fully connect
+                while voice_client.is_connecting():
+                    await asyncio.sleep(1)
+                return voice_client, False
+
+        if ctx.author.voice:
+            voice_channel = ctx.author.voice.channel
+            voice_client = await voice_channel.connect()
+            return voice_client, True
+        else:
+            raise commands.CommandError("You need to be in a voice channel to use this command.")
+
 
     @commands.command()
-    async def quack_help(self, ctx):
+    async def voice_list(self, ctx):
         await ctx.send("Sending help in private message.")
         await self._send_help(ctx)
 
@@ -102,5 +110,10 @@ class UberduckCog(commands.Cog):
             "See https://uberduck.ai/quack-help for instructions on using the bot commands. Make sure you enter a voice that exactly matches one of the listed voices."
         )
 
+
+
+    
+
+
 def setup(bot):
-    bot.add_cog(UberduckCog(bot))
+    bot.add_cog(uberduck_cog(bot))

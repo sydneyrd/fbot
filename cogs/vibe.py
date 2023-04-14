@@ -1,4 +1,4 @@
-import discord
+import nextcord as discord
 import requests
 import random
 from discord.ext import commands
@@ -9,14 +9,18 @@ class vibe(commands.Cog):
 
     @commands.command(name="vibe")
     async def vibe(self, ctx):
-        response = requests.get("https://api.quotable.io/random")
-        if response.status_code == 200:
+        try:
+            response = requests.get("https://api.quotable.io/random")
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            await ctx.send(f"HTTP error occurred: {err}")
+        except Exception as err:
+            await ctx.send(f"Other error occurred: {err}")
+        else:
             data = response.json()
             quote = data["content"]
             embed = discord.Embed(description=quote, color=discord.Color.blue())
             await ctx.send(embed=embed)
-        else:
-            await ctx.send("sorry charlie :(")
 
-async def setup(bot):
-    await bot.add_cog(vibe(bot))
+def setup(bot):
+    bot.add_cog(vibe(bot))
