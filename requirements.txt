@@ -22,6 +22,7 @@ defusedxml==0.7.1
 dill==0.3.5.1
 distlib==0.3.4
 docopt==0.6.2
+dotenv
 emoji==2.2.0
 emojis==0.7.0
 entrypoints==0.4
@@ -62,6 +63,7 @@ nbformat==5.4.0
 nest-asyncio==1.5.5
 nextcord==2.4.2
 notebook==6.4.12
+openai
 packaging==21.3
 pandocfilters==1.5.0
 parso==0.8.3

@@ -3,6 +3,9 @@ import os
 from discord.ext import commands
 import asyncio
 import logging
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 logger = logging.getLogger('nextcord')
