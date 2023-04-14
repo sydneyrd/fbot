@@ -1,4 +1,4 @@
-import discord
+import nextcord as discord
 from discord.ext import commands
 import random 
 
@@ -25,4 +25,4 @@ class chainsawman(commands.Cog):
             await message.channel.send(response)
 
 async def setup(bot):
-    await bot.add_cog(chainsawman(bot))
+    bot.add_cog(chainsawman(bot))

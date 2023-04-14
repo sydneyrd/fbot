@@ -19,7 +19,7 @@
 
 # async def setup(bot):
 #     await bot.add_cog(bless(bot))
-import discord
+import nextcord as discord
 import requests
 from discord.ext import commands
 
@@ -39,4 +39,4 @@ class bless(commands.Cog):
             await ctx.send("sorry charlie :(")
 
 async def setup(bot):
-    await bot.add_cog(bless(bot))
+    bot.add_cog(bless(bot))

@@ -1,4 +1,4 @@
-import discord
+import nextcord as discord
 from discord.ext import commands
 import datetime
 from typing import Union
@@ -55,4 +55,4 @@ def parse_date(date_str: str) -> Union[None, tuple]:
                 return None
 
 async def setup(bot):
-    await bot.add_cog(zodiac(bot))
+    bot.add_cog(zodiac(bot))
