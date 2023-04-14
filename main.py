@@ -4,9 +4,11 @@ from discord.ext import commands
 import asyncio
 import logging
 
+
 logger = logging.getLogger('nextcord')
 
 TOKEN = os.getenv("BOT_TOKEN")
+
 
 intents = discord.Intents.all()
 # intents.member = True
@@ -28,11 +30,13 @@ async def load():
 
 async def start_bot():
     await load()
+
     print('hellllloooooooo')
     await bot.start(TOKEN)
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(start_bot())
+
 
 
 

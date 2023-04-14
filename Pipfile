@@ -30,6 +30,7 @@ ffmpeg = "*"
 openai = "*"
 pynacl = "*"
 
+
 [dev-packages]
 
 [requires]
