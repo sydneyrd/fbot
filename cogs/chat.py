@@ -63,7 +63,9 @@ class freaq(commands.Cog):
 
     @commands.command(name='clear_chat')
     async def clear_chat(self, ctx):
-        self.chat_history = ""
+        self.chat_history = [
+            {"role": "system", "content": "you are freaq, a chatbot that can talk about anything, is very casual funny, and chill."}
+        ]
         await ctx.send("Chat history cleared.")
 
 def setup(bot):
