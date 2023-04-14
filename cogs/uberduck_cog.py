@@ -8,7 +8,7 @@ from functools import partial
 import aiohttp
 import nextcord as discord
 from discord.ext import commands
-from my_http import query_uberduck, get_available_voices
+from my_http import query_uberduck
 
 API_KEY = os.getenv("API_KEY")
 API_SECRET = os.getenv("API_SECRET")
@@ -85,7 +85,7 @@ class uberduck_cog(commands.Cog):
         else:
             await ctx.send("You're not in a voice channel. Join a voice channel to invite the bot!")
     @staticmethod
-    async def play_speech(ctx, voice: str, *, speech:str):  #i want speech to be all of the rest of the words, not just the first
+    async def play_speech(self, ctx, voice: str, *, speech:str):  #i want speech to be all of the rest of the words, not just the first
         """Speak a mesage in voice chat.
         :param voice: The voice to use. See `!voices` for a list of available voices.
         :param speech: The message to speak.
@@ -116,13 +116,22 @@ class uberduck_cog(commands.Cog):
     async def _get_or_create_voice_client(self, ctx, channel=None):
         voice_client = ctx.voice_client
         if not voice_client:
-            channel = ctx.author.voice.channel
-            voice_client = await channel.connect()
+            try:
+                channel = ctx.author.voice.channel
+                voice_client = await channel.connect()
+            except Exception: # No channel to join
+                print("No channel to join")
+                # await ctx.send("You must be in a voice channel to use this command.")
+                return None, None,
+                
         elif voice_client.is_playing() or voice_client.is_paused():
             print("The bot is already playing or paused")
             voice_client.stop()
             voice_client.pause() # Pause the player instead of disconnecting
         return voice_client, channel
+
+
+
 
     @commands.command()
     async def voice_list(self, ctx):

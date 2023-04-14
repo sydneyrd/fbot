@@ -28,6 +28,7 @@ async def load():
 
 async def start_bot():
     await load()
+    print('hellllloooooooo')
     await bot.start(TOKEN)
 
 loop = asyncio.get_event_loop()

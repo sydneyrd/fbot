@@ -28,6 +28,7 @@ nextcord = "*"
 requests = "*"
 ffmpeg = "*"
 openai = "*"
+pynacl = "*"
 
 [dev-packages]
 
