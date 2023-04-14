@@ -57,7 +57,7 @@ class uberduck_cog(commands.Cog):
             await ctx.send("Bot is not connected to a voice channel. Nothing to kick.")
 
     @commands.command()
-    async def speak_vc(self, ctx, voice: str, speech: str):
+    async def speak_vc(self, ctx, voice: str, *, speech:str):  #i want speech to be all of the rest of the words, not just the first
         voice_client, _ = await self._get_or_create_voice_client(ctx)
         if voice_client:
             self.guild_to_voice_client[ctx.guild.id] = (voice_client, datetime.utcnow())
@@ -80,25 +80,35 @@ class uberduck_cog(commands.Cog):
                 await ctx.send("Sent an Uberduck message in voice chat.")
         else:
             await ctx.send("You're not in a voice channel. Join a voice channel to invite the bot!")
-    async def _get_or_create_voice_client(self, ctx):
-        voice_client = ctx.guild.voice_client
-        if voice_client:
-            # Check if voice client is fully connected
-            if voice_client.is_connected() and not voice_client.is_connecting():
-                return voice_client, False
-            else:
-                # Wait for voice client to fully connect
-                while voice_client.is_connecting():
-                    await asyncio.sleep(1)
-                return voice_client, False
+    # async def _get_or_create_voice_client(self, ctx):
+    #     voice_client = ctx.guild.voice_client
+    #     if voice_client:
+    #         # Check if voice client is fully connected
+    #         if voice_client.is_connected() and not voice_client.is_connecting():
+    #             return voice_client, False
+    #         else:
+    #             # Wait for voice client to fully connect
+    #             while voice_client.is_connecting():
+    #                 await asyncio.sleep(1)
+    #             return voice_client, False
 
-        if ctx.author.voice:
-            voice_channel = ctx.author.voice.channel
-            voice_client = await voice_channel.connect()
-            return voice_client, True
-        else:
-            raise commands.CommandError("You need to be in a voice channel to use this command.")
+    #     if ctx.author.voice:
+    #         voice_channel = ctx.author.voice.channel
+    #         voice_client = await voice_channel.connect()
+    #         return voice_client, True
+    #     else:
+    #         raise commands.CommandError("You need to be in a voice channel to use this command.")
 
+    async def _get_or_create_voice_client(self, ctx, channel=None):
+        voice_client = ctx.voice_client
+        if not voice_client:
+            channel = ctx.author.voice.channel
+            voice_client = await channel.connect()
+        elif voice_client.is_playing() or voice_client.is_paused():
+            print("The bot is already playing or paused")
+            voice_client.stop()
+            voice_client.pause() # Pause the player instead of disconnecting
+        return voice_client, channel
 
     @commands.command()
     async def voice_list(self, ctx):

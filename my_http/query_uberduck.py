@@ -15,6 +15,7 @@ API_ROOT = "https://api.uberduck.ai"
 
 async def query_uberduck(text, voice="zwf"):
     max_time = 60
+    print(f'!!!!!!!!!!!!!!!!!!!!! {text}')
     async with aiohttp.ClientSession() as session:
         url = f"{API_ROOT}/speak"
         data = json.dumps(
