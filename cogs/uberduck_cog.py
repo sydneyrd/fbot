@@ -58,6 +58,10 @@ class uberduck_cog(commands.Cog):
 
     @commands.command()
     async def speak_vc(self, ctx, voice: str, *, speech:str):  #i want speech to be all of the rest of the words, not just the first
+        """Speak a message in voice chat.
+        :param voice: The voice to use. See `!voices` for a list of available voices.
+        :param speech: The message to speak.
+        """
         voice_client, _ = await self._get_or_create_voice_client(ctx)
         if voice_client:
             self.guild_to_voice_client[ctx.guild.id] = (voice_client, datetime.utcnow())
@@ -80,24 +84,34 @@ class uberduck_cog(commands.Cog):
                 await ctx.send("Sent an Uberduck message in voice chat.")
         else:
             await ctx.send("You're not in a voice channel. Join a voice channel to invite the bot!")
-    # async def _get_or_create_voice_client(self, ctx):
-    #     voice_client = ctx.guild.voice_client
-    #     if voice_client:
-    #         # Check if voice client is fully connected
-    #         if voice_client.is_connected() and not voice_client.is_connecting():
-    #             return voice_client, False
-    #         else:
-    #             # Wait for voice client to fully connect
-    #             while voice_client.is_connecting():
-    #                 await asyncio.sleep(1)
-    #             return voice_client, False
+    @staticmethod
+    async def play_speech(ctx, voice: str, *, speech:str):  #i want speech to be all of the rest of the words, not just the first
+        """Speak a mesage in voice chat.
+        :param voice: The voice to use. See `!voices` for a list of available voices.
+        :param speech: The message to speak.
+        """
+        voice_client, _ = await self._get_or_create_voice_client(ctx)
+        if voice_client:
+            self.guild_to_voice_client[ctx.guild.id] = (voice_client, datetime.utcnow())
+            audio_data = await query_uberduck(speech, voice)
+            with tempfile.NamedTemporaryFile(
+                suffix=".wav"
+            ) as wav_f, tempfile.NamedTemporaryFile(suffix=".opus") as opus_f:
+                wav_f.write(audio_data.getvalue())
+                wav_f.flush()
+                subprocess.check_call(["ffmpeg", "-y", "-i", wav_f.name, opus_f.name])
+                source = discord.FFmpegOpusAudio(opus_f.name)
+                voice_client.play(source, after=None)
 
-    #     if ctx.author.voice:
-    #         voice_channel = ctx.author.voice.channel
-    #         voice_client = await voice_channel.connect()
-    #         return voice_client, True
-    #     else:
-    #         raise commands.CommandError("You need to be in a voice channel to use this command.")
+                # Wait for the VoiceClient to connect before playing audio
+                while not voice_client.is_connected():
+                    await asyncio.sleep(0.1)
+
+                while voice_client.is_playing():
+                    await asyncio.sleep(0.5)
+                await ctx.send("Sent an Uberduck message in voice chat.")
+        else:
+            await ctx.send("You're not in a voice channel. Join a voice channel to invite the bot!")
 
     async def _get_or_create_voice_client(self, ctx, channel=None):
         voice_client = ctx.voice_client
